@@ -422,9 +422,41 @@ func NewOffsetMethod(qsTypeName string) StructOperationOneArgMethod {
 	return newStructOperationOneArgMethod("Offset", "int", qsTypeName)
 }
 
-// NewAllMethod creates All method
-func NewAllMethod(structName, qsTypeName string) SelectMethod {
-	return newSelectMethod("All", "Find", fmt.Sprintf("*[]%s", structName), qsTypeName)
+// AllMethod represents a custom All method that iterates rows manually
+type AllMethod struct {
+	namedMethod
+	oneArgMethod
+	baseQuerySetMethod
+	errorRetMethod
+	constBodyMethod
+}
+
+// NewAllMethod creates All method with row-by-row iteration
+func NewAllMethod(structName, qsTypeName string) AllMethod {
+	bodyTemplate := `rows, err := %s.Rows()
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	*ret = make([]%s, 0)
+	for rows.Next() {
+		var item %s
+		if err := %s.ScanRows(rows, &item); err != nil {
+			return err
+		}
+		*ret = append(*ret, item)
+	}
+	
+	return rows.Err()`
+
+	return AllMethod{
+		namedMethod:        newNamedMethod("All"),
+		baseQuerySetMethod: newBaseQuerySetMethod(qsTypeName),
+		oneArgMethod:       newOneArgMethod("ret", fmt.Sprintf("*[]%s", structName)),
+		errorRetMethod:     errorRetMethod{},
+		constBodyMethod:    newConstBodyMethod(bodyTemplate, qsDbName, structName, structName, qsDbName),
+	}
 }
 
 // NewOneMethod creates One method
