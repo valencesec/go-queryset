@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"errors"
 	"fmt"
 	"log"
 	"math/rand"
@@ -159,7 +160,7 @@ func testUserSelectAll(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 
 	var users []test.User
 
-	assert.Nil(t, test.NewUserQuerySet(db).All(&users))
+	assert.Nil(t, test.NewUserQuerySetWithContext(context.Background(), db).All(&users))
 	assert.Equal(t, expUsers, users)
 }
 
@@ -170,7 +171,7 @@ func testUserSelectAllSingleField(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) 
 
 	var users []test.User
 
-	assert.Nil(t, test.NewUserQuerySet(db).Select(test.UserDBSchema.Name).All(&users))
+	assert.Nil(t, test.NewUserQuerySetWithContext(context.Background(), db).Select(test.UserDBSchema.Name).All(&users))
 	assert.Equal(t, expUsers, users)
 }
 
@@ -181,7 +182,7 @@ func testUserSelectAllMultipleFields(t *testing.T, m sqlmock.Sqlmock, db *gorm.D
 
 	var users []test.User
 
-	assert.Nil(t, test.NewUserQuerySet(db).Select(test.UserDBSchema.Name, test.UserDBSchema.Email).All(&users))
+	assert.Nil(t, test.NewUserQuerySetWithContext(context.Background(), db).Select(test.UserDBSchema.Name, test.UserDBSchema.Email).All(&users))
 	assert.Equal(t, expUsers, users)
 }
 
@@ -193,7 +194,7 @@ func testUserSelectWithLimitAndOffset(t *testing.T, m sqlmock.Sqlmock, db *gorm.
 
 	var users []test.User
 
-	assert.Nil(t, test.NewUserQuerySet(db).Limit(1).Offset(1).All(&users))
+	assert.Nil(t, test.NewUserQuerySetWithContext(context.Background(), db).Limit(1).Offset(1).All(&users))
 	assert.Equal(t, expUsers[0], users[0])
 }
 
@@ -203,7 +204,7 @@ func testUserSelectAllNoRecords(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 
 	var users []test.User
 
-	assert.Error(t, gorm.ErrRecordNotFound, test.NewUserQuerySet(db).All(&users))
+	assert.Error(t, gorm.ErrRecordNotFound, test.NewUserQuerySetWithContext(context.Background(), db).All(&users))
 	assert.Len(t, users, 0)
 }
 
@@ -215,7 +216,7 @@ func testUserSelectOne(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 
 	var user test.User
 
-	assert.Nil(t, test.NewUserQuerySet(db).One(&user))
+	assert.Nil(t, test.NewUserQuerySetWithContext(context.Background(), db).One(&user))
 	assert.Equal(t, expUsers[0], user)
 }
 
@@ -232,7 +233,7 @@ func testUserSelectWithSurnameFilter(t *testing.T, m sqlmock.Sqlmock, db *gorm.D
 
 	var user test.User
 
-	assert.Nil(t, test.NewUserQuerySet(db).SurnameEq(surname).One(&user))
+	assert.Nil(t, test.NewUserQuerySetWithContext(context.Background(), db).SurnameEq(surname).One(&user))
 	assert.Equal(t, expUsers[0], user)
 }
 
@@ -290,7 +291,7 @@ func runUserQueryFilterSubTest(t *testing.T, c userQueryTestCase, m sqlmock.Sqlm
 
 	var users []test.User
 
-	assert.Nil(t, c.qs(test.NewUserQuerySet(db)).All(&users))
+	assert.Nil(t, c.qs(test.NewUserQuerySetWithContext(context.Background(), db)).All(&users))
 	assert.Equal(t, expUsers, users)
 }
 
@@ -332,7 +333,7 @@ func testUserUpdateByEmail(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 		WithArgs(u.Name, u.Email).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err := test.NewUserQuerySet(db).
+	err := test.NewUserQuerySetWithContext(context.Background(), db).
 		EmailEq(u.Email).
 		GetUpdater().
 		SetName(u.Name).
@@ -357,7 +358,7 @@ func testUserDeleteByEmail(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 		WithArgs(sqlmock.AnyArg(), u.Email).
 		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	err := test.NewUserQuerySet(db).
+	err := test.NewUserQuerySetWithContext(context.Background(), db).
 		EmailEq(u.Email).
 		Delete()
 	assert.Nil(t, err)
@@ -381,7 +382,7 @@ func testUsersDeleteNum(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 		WithArgs(sqlmock.AnyArg(), users[0].Email, users[1].Email).
 		WillReturnResult(sqlmock.NewResult(0, int64(usersNum)))
 
-	num, err := test.NewUserQuerySet(db).
+	num, err := test.NewUserQuerySetWithContext(context.Background(), db).
 		EmailIn(users[0].Email, users[1].Email).
 		DeleteNum()
 	assert.Nil(t, err)
@@ -396,7 +397,7 @@ func testUsersDeleteNumUnscoped(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 		WithArgs(users[0].Email, users[1].Email).
 		WillReturnResult(sqlmock.NewResult(0, int64(usersNum)))
 
-	num, err := test.NewUserQuerySet(db).
+	num, err := test.NewUserQuerySetWithContext(context.Background(), db).
 		EmailIn(users[0].Email, users[1].Email).
 		DeleteNumUnscoped()
 	assert.Nil(t, err)
@@ -411,7 +412,7 @@ func testUsersUpdateNum(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 		WithArgs(sqlmock.AnyArg(), users[0].Email, users[1].Email).
 		WillReturnResult(sqlmock.NewResult(0, int64(usersNum)))
 
-	num, err := test.NewUserQuerySet(db).
+	num, err := test.NewUserQuerySetWithContext(context.Background(), db).
 		EmailIn(users[0].Email, users[1].Email).
 		GetUpdater().
 		SetName("some name").
@@ -426,7 +427,7 @@ func testUsersCount(t *testing.T, m sqlmock.Sqlmock, db *gorm.DB) {
 	m.ExpectQuery(fixedFullRe(req)).WithArgs(driver.Value("")).
 		WillReturnRows(getRowWithFields([]driver.Value{expCount}))
 
-	cnt, err := test.NewUserQuerySet(db).NameNe("").Count()
+	cnt, err := test.NewUserQuerySetWithContext(context.Background(), db).NameNe("").Count()
 	assert.Nil(t, err)
 	assert.Equal(t, expCount, cnt)
 }
@@ -454,4 +455,39 @@ func BenchmarkHello(b *testing.B) {
 			b.Fatalf("can't generate querysets: %s", err)
 		}
 	}
+}
+
+func TestDeprecatedConstructor(t *testing.T) {
+	m, db := newDB()
+	defer checkMock(t, m)
+
+	m.ExpectQuery(fixedFullRe("SELECT * FROM `users` WHERE `users`.`deleted_at` IS NULL")).
+		WillReturnRows(getRowsForUsers(nil))
+
+	var users []test.User
+	//nolint:staticcheck // deprecated path coverage
+	assert.Nil(t, test.NewUserQuerySet(db).All(&users))
+	assert.Empty(t, users)
+}
+
+func TestWithContextCancelled(t *testing.T) {
+	_, db := newDB()
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	var users []test.User
+	err := test.NewUserQuerySetWithContext(ctx, db).All(&users)
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, context.Canceled), "got %v", err)
+}
+
+func TestWithContextSurvivesChaining(t *testing.T) {
+	_, db := newDB()
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	var users []test.User
+	err := test.NewUserQuerySetWithContext(ctx, db).NameNe("").OrderAscByID().All(&users)
+	assert.Error(t, err)
+	assert.True(t, errors.Is(err, context.Canceled), "got %v", err)
 }

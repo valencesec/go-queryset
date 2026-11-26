@@ -2,6 +2,7 @@
 package test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -21,14 +22,25 @@ type BlogQuerySet struct {
 }
 
 // NewBlogQuerySet constructs new BlogQuerySet
+//
+// Deprecated: use NewBlogQuerySetWithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace NewBlogQuerySet(db) with NewBlogQuerySetWithContext(ctx, db).
 func NewBlogQuerySet(db *gorm.DB) BlogQuerySet {
 	return BlogQuerySet{
 		db: db.Model(&Blog{}),
 	}
 }
 
+// NewBlogQuerySetWithContext constructs new BlogQuerySet bound to ctx
+func NewBlogQuerySetWithContext(ctx context.Context, db *gorm.DB) BlogQuerySet {
+	return BlogQuerySet{
+		db: db.WithContext(ctx).Model(&Blog{}),
+	}
+}
+
 func (qs BlogQuerySet) w(db *gorm.DB) BlogQuerySet {
-	return NewBlogQuerySet(db)
+	return BlogQuerySet{
+		db: db.Model(&Blog{}),
+	}
 }
 
 func (qs BlogQuerySet) Select(fields ...BlogDBSchemaField) BlogQuerySet {
@@ -495,14 +507,25 @@ type CheckReservedKeywordsQuerySet struct {
 }
 
 // NewCheckReservedKeywordsQuerySet constructs new CheckReservedKeywordsQuerySet
+//
+// Deprecated: use NewCheckReservedKeywordsQuerySetWithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace NewCheckReservedKeywordsQuerySet(db) with NewCheckReservedKeywordsQuerySetWithContext(ctx, db).
 func NewCheckReservedKeywordsQuerySet(db *gorm.DB) CheckReservedKeywordsQuerySet {
 	return CheckReservedKeywordsQuerySet{
 		db: db.Model(&CheckReservedKeywords{}),
 	}
 }
 
+// NewCheckReservedKeywordsQuerySetWithContext constructs new CheckReservedKeywordsQuerySet bound to ctx
+func NewCheckReservedKeywordsQuerySetWithContext(ctx context.Context, db *gorm.DB) CheckReservedKeywordsQuerySet {
+	return CheckReservedKeywordsQuerySet{
+		db: db.WithContext(ctx).Model(&CheckReservedKeywords{}),
+	}
+}
+
 func (qs CheckReservedKeywordsQuerySet) w(db *gorm.DB) CheckReservedKeywordsQuerySet {
-	return NewCheckReservedKeywordsQuerySet(db)
+	return CheckReservedKeywordsQuerySet{
+		db: db.Model(&CheckReservedKeywords{}),
+	}
 }
 
 func (qs CheckReservedKeywordsQuerySet) Select(fields ...CheckReservedKeywordsDBSchemaField) CheckReservedKeywordsQuerySet {
@@ -837,14 +860,25 @@ type PostQuerySet struct {
 }
 
 // NewPostQuerySet constructs new PostQuerySet
+//
+// Deprecated: use NewPostQuerySetWithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace NewPostQuerySet(db) with NewPostQuerySetWithContext(ctx, db).
 func NewPostQuerySet(db *gorm.DB) PostQuerySet {
 	return PostQuerySet{
 		db: db.Model(&Post{}),
 	}
 }
 
+// NewPostQuerySetWithContext constructs new PostQuerySet bound to ctx
+func NewPostQuerySetWithContext(ctx context.Context, db *gorm.DB) PostQuerySet {
+	return PostQuerySet{
+		db: db.WithContext(ctx).Model(&Post{}),
+	}
+}
+
 func (qs PostQuerySet) w(db *gorm.DB) PostQuerySet {
-	return NewPostQuerySet(db)
+	return PostQuerySet{
+		db: db.Model(&Post{}),
+	}
 }
 
 func (qs PostQuerySet) Select(fields ...PostDBSchemaField) PostQuerySet {
@@ -1450,14 +1484,25 @@ type UserQuerySet struct {
 }
 
 // NewUserQuerySet constructs new UserQuerySet
+//
+// Deprecated: use NewUserQuerySetWithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace NewUserQuerySet(db) with NewUserQuerySetWithContext(ctx, db).
 func NewUserQuerySet(db *gorm.DB) UserQuerySet {
 	return UserQuerySet{
 		db: db.Model(&User{}),
 	}
 }
 
+// NewUserQuerySetWithContext constructs new UserQuerySet bound to ctx
+func NewUserQuerySetWithContext(ctx context.Context, db *gorm.DB) UserQuerySet {
+	return UserQuerySet{
+		db: db.WithContext(ctx).Model(&User{}),
+	}
+}
+
 func (qs UserQuerySet) w(db *gorm.DB) UserQuerySet {
-	return NewUserQuerySet(db)
+	return UserQuerySet{
+		db: db.Model(&User{}),
+	}
 }
 
 func (qs UserQuerySet) Select(fields ...UserDBSchemaField) UserQuerySet {

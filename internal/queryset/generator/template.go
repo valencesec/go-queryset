@@ -22,14 +22,25 @@ const qsCode = `
   }
 
   // New{{ .Name }} constructs new {{ .Name }}
+  //
+  // Deprecated: use New{{ .Name }}WithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace New{{ .Name }}(db) with New{{ .Name }}WithContext(ctx, db).
   func New{{ .Name }}(db *gorm.DB) {{ .Name }} {
 	  return {{ .Name }}{
 		  db: db.Model(&{{ .StructName }}{}),
 	  }
   }
 
+  // New{{ .Name }}WithContext constructs new {{ .Name }} bound to ctx
+  func New{{ .Name }}WithContext(ctx context.Context, db *gorm.DB) {{ .Name }} {
+	  return {{ .Name }}{
+		  db: db.WithContext(ctx).Model(&{{ .StructName }}{}),
+	  }
+  }
+
   func (qs {{ .Name }}) w(db *gorm.DB) {{ .Name }} {
-	  return New{{ .Name }}(db)
+	  return {{ .Name }}{
+		  db: db.Model(&{{ .StructName }}{}),
+	  }
   }
 
   func (qs {{ .Name }}) Select(fields ...{{ $ft }}) {{ .Name }} {

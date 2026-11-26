@@ -2,6 +2,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -20,14 +21,25 @@ type ExampleQuerySet struct {
 }
 
 // NewExampleQuerySet constructs new ExampleQuerySet
+//
+// Deprecated: use NewExampleQuerySetWithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace NewExampleQuerySet(db) with NewExampleQuerySetWithContext(ctx, db).
 func NewExampleQuerySet(db *gorm.DB) ExampleQuerySet {
 	return ExampleQuerySet{
 		db: db.Model(&Example{}),
 	}
 }
 
+// NewExampleQuerySetWithContext constructs new ExampleQuerySet bound to ctx
+func NewExampleQuerySetWithContext(ctx context.Context, db *gorm.DB) ExampleQuerySet {
+	return ExampleQuerySet{
+		db: db.WithContext(ctx).Model(&Example{}),
+	}
+}
+
 func (qs ExampleQuerySet) w(db *gorm.DB) ExampleQuerySet {
-	return NewExampleQuerySet(db)
+	return ExampleQuerySet{
+		db: db.Model(&Example{}),
+	}
 }
 
 func (qs ExampleQuerySet) Select(fields ...ExampleDBSchemaField) ExampleQuerySet {

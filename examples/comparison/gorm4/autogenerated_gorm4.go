@@ -2,6 +2,7 @@
 package gorm4
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
@@ -20,14 +21,25 @@ type UserQuerySet struct {
 }
 
 // NewUserQuerySet constructs new UserQuerySet
+//
+// Deprecated: use NewUserQuerySetWithContext(ctx, db) instead, so the request context (cancellation, deadlines, tracing) reaches every query. Replace NewUserQuerySet(db) with NewUserQuerySetWithContext(ctx, db).
 func NewUserQuerySet(db *gorm.DB) UserQuerySet {
 	return UserQuerySet{
 		db: db.Model(&User{}),
 	}
 }
 
+// NewUserQuerySetWithContext constructs new UserQuerySet bound to ctx
+func NewUserQuerySetWithContext(ctx context.Context, db *gorm.DB) UserQuerySet {
+	return UserQuerySet{
+		db: db.WithContext(ctx).Model(&User{}),
+	}
+}
+
 func (qs UserQuerySet) w(db *gorm.DB) UserQuerySet {
-	return NewUserQuerySet(db)
+	return UserQuerySet{
+		db: db.Model(&User{}),
+	}
 }
 
 func (qs UserQuerySet) Select(fields ...UserDBSchemaField) UserQuerySet {

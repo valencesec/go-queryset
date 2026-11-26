@@ -54,6 +54,7 @@ func (g Generator) writeQuerySetsToOutput(r io.Reader, packageName, outFile stri
 	package %s
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strings"
