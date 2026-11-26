@@ -463,7 +463,7 @@ func (o *Blog) Update(db *gorm.DB, fields ...BlogDBSchemaField) error {
 			return err
 		}
 
-		return fmt.Errorf("can't update Blog %v fields %v: %s",
+		return fmt.Errorf("can't update Blog %v fields %v: %w",
 			o, fields, err)
 	}
 
@@ -805,7 +805,7 @@ func (o *CheckReservedKeywords) Update(db *gorm.DB, fields ...CheckReservedKeywo
 			return err
 		}
 
-		return fmt.Errorf("can't update CheckReservedKeywords %v fields %v: %s",
+		return fmt.Errorf("can't update CheckReservedKeywords %v fields %v: %w",
 			o, fields, err)
 	}
 
@@ -1418,7 +1418,7 @@ func (o *Post) Update(db *gorm.DB, fields ...PostDBSchemaField) error {
 			return err
 		}
 
-		return fmt.Errorf("can't update Post %v fields %v: %s",
+		return fmt.Errorf("can't update Post %v fields %v: %w",
 			o, fields, err)
 	}
 
@@ -2084,7 +2084,7 @@ func (o *User) Update(db *gorm.DB, fields ...UserDBSchemaField) error {
 			return err
 		}
 
-		return fmt.Errorf("can't update User %v fields %v: %s",
+		return fmt.Errorf("can't update User %v fields %v: %w",
 			o, fields, err)
 	}
 

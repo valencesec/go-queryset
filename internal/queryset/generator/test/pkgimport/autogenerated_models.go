@@ -498,7 +498,7 @@ func (o *Example) Update(db *gorm.DB, fields ...ExampleDBSchemaField) error {
 			return err
 		}
 
-		return fmt.Errorf("can't update Example %v fields %v: %s",
+		return fmt.Errorf("can't update Example %v fields %v: %w",
 			o, fields, err)
 	}
 
