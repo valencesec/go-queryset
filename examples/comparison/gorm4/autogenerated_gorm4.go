@@ -528,7 +528,7 @@ func (o *User) Update(db *gorm.DB, fields ...UserDBSchemaField) error {
 			return err
 		}
 
-		return fmt.Errorf("can't update User %v fields %v: %s",
+		return fmt.Errorf("can't update User %v fields %v: %w",
 			o, fields, err)
 	}
 

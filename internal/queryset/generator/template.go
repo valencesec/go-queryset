@@ -91,7 +91,7 @@ const qsCode = `
 				return err
 			}
 
-			return fmt.Errorf("can't update {{ .StructName }} %v fields %v: %s",
+			return fmt.Errorf("can't update {{ .StructName }} %v fields %v: %w",
 				o, fields, err)
 		}
 
